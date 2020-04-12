@@ -44,7 +44,7 @@ public class LoadBalancer {
         int clientNumber = ZERO;
         for (String clientName : Server.map_Of_IncomingRequests.keySet()){
             ServerResponseObject resp = new ServerResponseObject();
-            resp.globalIncumbent=BILLION;
+            resp.globalIncumbent=Server.bestKnownSolution;
             resp.leafPool_FromRampUp = Server.leafPool_FromRampUp;
             resp.jobAssignmentList =  getAssignmentmapForStaticLB(clientNumber);
             Server.responseMap.put (clientName, resp) ;     

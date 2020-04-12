@@ -6,9 +6,12 @@
 package ca.mcmaster.selfsplitpseudocostrepo.client;
 
 import static ca.mcmaster.selfsplitpseudocostrepo.Constants.*;
+import ca.mcmaster.selfsplitpseudocostrepo.Parameters;
 import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.*;
 import ca.mcmaster.selfsplitpseudocostrepo.server.*;
 import ilog.concert.IloException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 
@@ -42,6 +46,8 @@ public class Client {
     private  static  double lowestDualBound= BILLION; 
     private  static  double localIncumbent= BILLION; 
     
+    public static Map  <Integer, List<String>> priorityMap= null;
+    
     static {
         logger.setLevel( LOGGING_LEVEL);
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
@@ -57,9 +63,15 @@ public class Client {
         }
     } 
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         
         clientname =  InetAddress.getLocalHost(). getHostName() ;
+        if (Parameters.USE_VAR_PRIORITIES)  initializePriorityMap();
+        
+        if (DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES) {
+            MAX_SOLUTION_CYCLES*=2;
+            logger.info ("MAX_SOLUTION_CYCLES changed to "+ MAX_SOLUTION_CYCLES) ;
+        }
          
         try (
             Socket workerSocket = new Socket(SERVER_NAME, PORT_NUMBER);                
@@ -83,7 +95,7 @@ public class Client {
                 
                 
                 
-                //solve for CYCLE_TIME
+                //solve for SOLUTION_CYCLE_TIME
                 long iterationEndTime = System.currentTimeMillis()+ THOUSAND*SOLUTION_CYCLE_TIME_IN_SECONDS;
                 
                 while (true){
@@ -93,12 +105,14 @@ public class Client {
                     
                     logger.debug("timeRemainingMillisec " + timeRemainingMillisec) ;
                     
-                    if (  timeRemainingMillisec/THOUSAND <   MINIMUM_TIME_QUANTUM_SECONDS){
+                    if (  timeRemainingMillisec  <  THOUSAND * MINIMUM_TIME_QUANTUM_SECONDS){
                         logger.warn ("client is sleeping for milliseconds..." + timeRemainingMillisec);
                         Thread.sleep( timeRemainingMillisec);
                     }else {
                         //solve with CPLEX
-                        solveWithCplex (timeRemainingMillisec);
+                        long timeQuantumMillisec = Parameters.TIME_QUANTUM_SECONDS *THOUSAND;
+                        if (timeRemainingMillisec < timeQuantumMillisec ) timeQuantumMillisec = timeRemainingMillisec;
+                        solveWithCplex (timeQuantumMillisec  );  
                     }
                     
                     printProgress();
@@ -118,6 +132,22 @@ public class Client {
              System.err.println(ex);
         }
          
+    }
+    
+    private static void initializePriorityMap () throws Exception {
+        File file = new File(PRIORITY_LIST_FILENAME );         
+        if (file.exists()) {
+            logger.info( "reading priority map ...");
+            FileInputStream fis = new FileInputStream(PRIORITY_LIST_FILENAME);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            priorityMap  = (TreeMap) ois.readObject();
+            ois.close();
+            fis.close();  
+            logger.info( "size of priority map" + priorityMap.size());
+        }else {
+            logger.info( "no variable priority map");
+        }
+
     }
     
     private static void  solveWithCplex(  double timeRemaining_Millisec ) throws  Exception   {
@@ -143,7 +173,8 @@ public class Client {
             listOfInProgressNodes.remove( jobToWorkOn);
             listOfAvailableNodes.remove(jobToWorkOn );
             
-            logger.debug("Solving job ... "+ jobToWorkOn + " has lp relax " +  jobMap.get(jobToWorkOn).lpRelax) ;
+            logger.info("Solving job ... "+ jobToWorkOn + " having lp relax " +  
+                         jobMap.get(jobToWorkOn).lpRelax + " for millisec "+timeRemaining_Millisec ) ;
             
             jobMap.get(jobToWorkOn).solve(timeRemaining_Millisec, localIncumbent);
             if ( !jobMap.get(jobToWorkOn).isComplete()){
@@ -202,6 +233,7 @@ public class Client {
                 Client.jobMap.put(entry.getKey() , new Job ( entry.getValue()  ));
             }
             Client.listOfAvailableNodes= response.jobAssignmentList;
+            Client.localIncumbent = response.globalIncumbent;
         }
        
         Client.lowestDualBound = Client.getLowestDualBound(listOfInProgressNodes, listOfAvailableNodes);
@@ -225,11 +257,11 @@ public class Client {
     }
     
     private static void printProgress (){
-        logger.debug("Progress report:\n Job map  size " + Client.jobMap.size() ) ;
-        logger.debug("Avail nodes " + Client.listOfAvailableNodes ) ;
-        logger.debug("In progress " + Client.listOfInProgressNodes) ;
-        logger.debug("Local incumbent " + Client.localIncumbent) ;
-        logger.debug("lprealx " + Client.lowestDualBound) ;
+        logger.info("Progress report:\n Job map  size " + Client.jobMap.size() ) ;
+        logger.info("Avail nodes " + Client.listOfAvailableNodes ) ;
+        logger.info("In progress " + Client.listOfInProgressNodes) ;
+        logger.info("Local incumbent " + Client.localIncumbent) ;
+        logger.info("lprealx " + Client.lowestDualBound) ;
     }
     
 }

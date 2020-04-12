@@ -6,13 +6,20 @@
 package ca.mcmaster.selfsplitpseudocostrepo.server;
  
 import static ca.mcmaster.selfsplitpseudocostrepo.Constants.*;
+import ca.mcmaster.selfsplitpseudocostrepo.Parameters;
+import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.LOGGING_LEVEL;
+import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.LOG_FILE_EXTENSION;
+import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.LOG_FOLDER;
+import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.*;
 import ca.mcmaster.selfsplitpseudocostrepo.client.ClientRequestObject;
+import ca.mcmaster.selfsplitpseudocostrepo.client.Job;
 import ilog.concert.IloException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import static java.lang.System.exit;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,12 +31,19 @@ import java.util.List;
 import java.util.Map; 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
 
 /**
  *
  * @author tamvadss
  */
 public class Server {
+    
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Server .class); 
+    
     
     //key is client name
     public static Map < String, ClientRequestObject >   map_Of_IncomingRequests   = Collections.synchronizedMap(new HashMap< String, ClientRequestObject > ()); 
@@ -43,16 +57,42 @@ public class Server {
     //dual bound
     public static double dualBound = BILLION;
     
-    public static void main(String[] args) throws IOException, IloException {                
+    static {
+        logger.setLevel( LOGGING_LEVEL);
+        PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
+        try {
+            RollingFileAppender rfa =new  RollingFileAppender(layout,LOG_FOLDER+  Server.class.getSimpleName()+ LOG_FILE_EXTENSION);
+            rfa.setMaxBackupIndex(SIXTY);
+            logger.addAppender(rfa);
+            logger.setAdditivity(false);
+        } catch (Exception ex) {
+            ///
+            System.err.println("Exit: unable to initialize logging"+ex);       
+            exit(ONE);
+        }
+        
+       
+    } 
+    
+    
+    public static void main(String[] args) throws IOException, IloException {     
+        
+        logger.info ( Parameters.getParameters());
+        if (DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES) {
+            MAX_SOLUTION_CYCLES*=2;
+            logger.info ("MAX_SOLUTION_CYCLES changed to "+ MAX_SOLUTION_CYCLES) ;
+        }
         
         ExecutorService executor = null;
         
-        //ramp up the MIP and populate the ramp up leaf list
+        //ramp up the MIP and populate the ramp up leaf list        
         RampUp rampup = new RampUp ();
-        rampup.getFrontier();
         
+               
+        Server.bestKnownSolution = rampup.getFrontier();
         
-        
+        logger.info ("ramp up complete") ;
+              
         
         try (
                 //try with resources 

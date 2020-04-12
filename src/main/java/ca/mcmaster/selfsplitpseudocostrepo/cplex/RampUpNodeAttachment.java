@@ -29,7 +29,9 @@ public class RampUpNodeAttachment {
     
       RampUpNodeAttachment current = this;
       while ( ! current.isRoot()) {
-      
+          
+          current.printMe();
+          
           //add my conditions to leaf 
           double bound = current.branchingBound;
           String variableName=current.branchingVarName;
@@ -44,8 +46,16 @@ public class RampUpNodeAttachment {
           //climb up
           current= current.parentNode;
       }
+      
+      System.out.println();
+      
       return leaf;
     
   }
+  
+  private void printMe(){
+      System.out.print( " var " +branchingVarName + " bound "+ branchingBound + " dirdown? "+ isBranchingDirectionDown);
+  }
+  
 }
  

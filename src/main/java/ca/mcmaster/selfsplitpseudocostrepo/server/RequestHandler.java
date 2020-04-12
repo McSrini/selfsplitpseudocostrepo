@@ -7,6 +7,7 @@ package ca.mcmaster.selfsplitpseudocostrepo.server;
 
 import ca.mcmaster.selfsplitpseudocostrepo.client.ClientRequestObject;
 import static ca.mcmaster.selfsplitpseudocostrepo.Constants.*; 
+import ca.mcmaster.selfsplitpseudocostrepo.Parameters;
 import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.*; 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -43,12 +44,16 @@ public class RequestHandler implements Runnable{
             System.err.println("Exit: unable to initialize logging"+ex);       
             exit(ONE);
         }
+        
+       
     } 
     
     
     public RequestHandler ( Socket clientSocket ){
         
         this.clientSocket = clientSocket;
+        
+       
         
     }
  
@@ -138,7 +143,9 @@ public class RequestHandler implements Runnable{
             if (Server.responseMap.isEmpty()){
                 //populate it
                 
-                updateGlobalIncumbent_And_DualBound ();
+                //update the dual bound and the solution once the worers are running
+                if (isDynamicLoadBalancing) updateGlobalIncumbent_And_DualBound ();
+                
                 logger.info ("Dual bound and best solution UPDATED to ," + Server.dualBound + "," +Server.bestKnownSolution) ;
                 
                 createAllResponses(isDynamicLoadBalancing);
@@ -168,10 +175,13 @@ public class RequestHandler implements Runnable{
     }
     
     private void updateGlobalIncumbent_And_DualBound (){
+        
+        double lowestDualBoundOfAllClients = BILLION;
         for (ClientRequestObject req: Server.map_Of_IncomingRequests.values()){
             if (req.bestKnownSolution< Server.bestKnownSolution ) Server.bestKnownSolution  = req.bestKnownSolution;
-            if (req.dualBound < Server.dualBound) Server.dualBound= req.dualBound;
+            if (req.dualBound < lowestDualBoundOfAllClients) lowestDualBoundOfAllClients= req.dualBound;
         }
+        Server.dualBound= lowestDualBoundOfAllClients;
     }
     
     
@@ -191,7 +201,7 @@ public class RequestHandler implements Runnable{
         
         boolean result = false;
         
-        for  (int limit = ZERO; limit < SIXTY ; limit ++ ) {
+        for  (int limit = ZERO; limit < SIXTY *TWO ; limit ++ ) {
             
             int countOfRecieved = ZERO;
             

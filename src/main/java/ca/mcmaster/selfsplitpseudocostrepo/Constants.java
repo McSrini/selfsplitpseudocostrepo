@@ -24,10 +24,10 @@ public class Constants {
     public static final int BILLION = THOUSAND*THOUSAND*THOUSAND;
     
     public static final int PORT_NUMBER = 4444;
-    public static final String SERVER_NAME = "miscan-n01";
-    public static final int CLUSTER_SIZE = 2;
+    public static final String SERVER_NAME = "miscan-head";
+    public static final int CLUSTER_SIZE = 5;
     
-    public static   final String LOG_FOLDER="./logs/"; 
-    public static   final String LOG_FILE_EXTENSION = ".log";
-    public static   final Level LOGGING_LEVEL= Level.DEBUG ;    
+   
+    
+    public static String PRIORITY_LIST_FILENAME = "priorityList.ser";
 }

@@ -9,8 +9,10 @@ import ca.mcmaster.selfsplitpseudocostrepo.cplex.RampUpBranchhandler;
 import ca.mcmaster.selfsplitpseudocostrepo.cplex.RampUpNodehandler;
 import static ca.mcmaster.selfsplitpseudocostrepo.Constants.*;
 import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.*;
+import ca.mcmaster.selfsplitpseudocostrepo.cplex.Utilities;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
+import ilog.cplex.IloCplex.Status;
 
 /**
  *
@@ -20,20 +22,33 @@ public class RampUp {
     
     private IloCplex cplex ;
     
-    public void getFrontier () throws IloException{
+    public double getFrontier () throws IloException{
         
         cplex = new IloCplex ();
         cplex.importModel(  MIP_FILENAME);
         cplex.use (new RampUpNodehandler ()) ;
         cplex.use (new RampUpBranchhandler());
-        //use full strong branching
-        cplex.setParam( IloCplex.Param.MIP.Strategy.VariableSelect  ,  THREE);
-        cplex.setParam( IloCplex.Param.MIP.Limits.StrongCand  , BILLION );
-        cplex.setParam( IloCplex.Param.MIP.Limits.StrongIt ,  BILLION );
-        cplex.setParam( IloCplex.Param.Emphasis.MIP , MIP_EMPHASIS );
+        
+        //use pseudo cost branching
+        //cplex.setParam( IloCplex.Param.MIP.Strategy.VariableSelect  ,  TWO);
+        //cplex.setParam( IloCplex.Param.MIP.Limits.StrongCand  , BILLION );
+        //cplex.setParam( IloCplex.Param.MIP.Limits.StrongIt ,  BILLION );
+        //cplex.setParam( IloCplex.Param.Emphasis.MIP , MIP_EMPHASIS );
+        
+        Utilities.configureCplex(cplex);
         
         cplex.solve ();
+        
+        double rampUpSolution = BILLION;
+        if (cplex.getStatus().equals(Status.Feasible)){
+            rampUpSolution  = cplex.getObjValue();
+        }
+        
+        Server.dualBound= cplex.getBestObjValue();
+        
         cplex.end();
+        
+        return rampUpSolution;
         
     }
     
