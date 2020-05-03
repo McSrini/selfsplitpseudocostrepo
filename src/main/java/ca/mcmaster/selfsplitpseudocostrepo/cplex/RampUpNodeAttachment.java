@@ -30,7 +30,7 @@ public class RampUpNodeAttachment {
       RampUpNodeAttachment current = this;
       while ( ! current.isRoot()) {
           
-          current.printMe();
+          //current.printMe();
           
           //add my conditions to leaf 
           double bound = current.branchingBound;
@@ -47,7 +47,7 @@ public class RampUpNodeAttachment {
           current= current.parentNode;
       }
       
-      System.out.println();
+      //System.out.println();
       
       return leaf;
     

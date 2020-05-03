@@ -75,11 +75,11 @@ public class Server {
     } 
     
     
-    public static void main(String[] args) throws IOException, IloException {     
+    public static void main(String[] args) throws Exception {     
         
         logger.info ( Parameters.getParameters());
-        if (DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES) {
-            MAX_SOLUTION_CYCLES*=2;
+        if (Parameters.INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_> ONE) {
+            MAX_SOLUTION_CYCLES*=INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_;
             logger.info ("MAX_SOLUTION_CYCLES changed to "+ MAX_SOLUTION_CYCLES) ;
         }
         

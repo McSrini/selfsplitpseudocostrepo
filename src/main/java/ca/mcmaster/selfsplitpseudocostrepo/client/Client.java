@@ -68,8 +68,8 @@ public class Client {
         clientname =  InetAddress.getLocalHost(). getHostName() ;
         if (Parameters.USE_VAR_PRIORITIES)  initializePriorityMap();
         
-        if (DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES) {
-            MAX_SOLUTION_CYCLES*=2;
+        if (INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_> ONE) {
+            MAX_SOLUTION_CYCLES*=INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_;
             logger.info ("MAX_SOLUTION_CYCLES changed to "+ MAX_SOLUTION_CYCLES) ;
         }
          

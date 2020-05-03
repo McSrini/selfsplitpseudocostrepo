@@ -29,7 +29,7 @@ public class RampUpNodehandler extends IloCplex.NodeCallback {
             for (long nodeNum = ZERO; nodeNum < getNremainingNodes64(); nodeNum ++) {
                 RampUpNodeAttachment nodeAttachment = (RampUpNodeAttachment) getNodeData (nodeNum) ;  
                 
-                System.out.println("Converting to leaf "+ getNodeId (nodeNum).toString()  + " having lp relax " + getObjValue(nodeNum) ) ;
+                //System.out.println("Converting to leaf "+ getNodeId (nodeNum).toString()  + " having lp relax " + getObjValue(nodeNum) ) ;
                 
                 Leaf leaf =  nodeAttachment.convertToLeaf();
                 leaf.lpRelax= getObjValue(nodeNum) ;

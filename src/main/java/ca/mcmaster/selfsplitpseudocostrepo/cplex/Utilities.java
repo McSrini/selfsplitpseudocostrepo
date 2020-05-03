@@ -6,6 +6,7 @@
 package ca.mcmaster.selfsplitpseudocostrepo.cplex;
 
 import static ca.mcmaster.selfsplitpseudocostrepo.Constants.*;
+import ca.mcmaster.selfsplitpseudocostrepo.Parameters;
 import static ca.mcmaster.selfsplitpseudocostrepo.Parameters.*;
 import ca.mcmaster.selfsplitpseudocostrepo.client.Client;
 import ca.mcmaster.selfsplitpseudocostrepo.server.Leaf;
@@ -42,6 +43,10 @@ public class Utilities {
             cplex.setParam( IloCplex.Param.MIP.Tolerances.UpperCutoff, cutoff) ;
         }
         
+        //test changed now, try to reach the best bound the monolithic computation achieved
+        //cplex.setParam( IloCplex.Param.MIP.Tolerances.UpperCutoff,  Parameters.CUTOFF_TO_USE_FOR_DISTRIBUTION) ;
+        //System.out.println("Cutoff set to "+ CUTOFF_TO_USE_FOR_DISTRIBUTION) ;
+        
         /*if (varPriorityMap!=null){
             if (varPriorityMap.size()>ZERO){
                 applyVariablePriorityList(cplex ,  varPriorityMap );
@@ -61,6 +66,10 @@ public class Utilities {
         
         cplex.setParam( IloCplex.Param.MIP.Strategy.HeuristicFreq , -ONE);
         
+        if (DISABLE_PRESOLVE_NODE) cplex.setParam( IloCplex.Param.MIP.Strategy.PresolveNode , -ONE  );
+        if (DISABLE_PRESOLVE) cplex.setParam( IloCplex.Param.Preprocessing.Presolve,  false);
+        
+        cplex.setParam( IloCplex.Param.MIP.Strategy.Search , ONE  );
         
         if (USE_BARRIER_FOR_SOLVING_LP) {
             cplex.setParam( IloCplex.Param.NodeAlgorithm  ,  IloCplex.Algorithm.Barrier);
@@ -101,7 +110,7 @@ public class Utilities {
         }
     }
     
-    private static  IloNumVar []   getVars   ( Map<String, IloNumVar> varMap , List<String> varNames){
+    public static  IloNumVar []   getVars   ( Map<String, IloNumVar> varMap , List<String> varNames){
          IloNumVar [] varArray = new   IloNumVar[varNames.size()]; 
          int index = ZERO;
          for ( String varName :  varNames ){

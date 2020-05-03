@@ -201,7 +201,7 @@ public class RequestHandler implements Runnable{
         
         boolean result = false;
         
-        for  (int limit = ZERO; limit < SIXTY *TWO ; limit ++ ) {
+        for  (int limit = ZERO; limit < SIXTY * TWO*TWO ; limit ++ ) {
             
             int countOfRecieved = ZERO;
             

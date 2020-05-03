@@ -27,7 +27,7 @@ public class Constants {
     public static final String SERVER_NAME = "miscan-head";
     public static final int CLUSTER_SIZE = 5;
     
-   
+    public static   final String HALT_FILE="haltfile.txt"; 
     
     public static String PRIORITY_LIST_FILENAME = "priorityList.ser";
 }

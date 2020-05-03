@@ -14,37 +14,36 @@ import org.apache.log4j.Level;
  */
 public class Parameters {
         
-    public static int SOLUTION_CYCLE_TIME_IN_SECONDS =   10*60 ; //ten minutes
+    public static int SOLUTION_CYCLE_TIME_IN_SECONDS =    10*60 ; //ten minutes
     
     //solve each MIP for this much time
-    public static int TIME_QUANTUM_SECONDS = SOLUTION_CYCLE_TIME_IN_SECONDS     /TWO;
+    public static int TIME_QUANTUM_SECONDS = SOLUTION_CYCLE_TIME_IN_SECONDS  /FIVE;
     //do not solve a MIP unless this many seconds left
     public static int MINIMUM_TIME_QUANTUM_SECONDS = TIME_QUANTUM_SECONDS/10 ;
     
     public static int MAX_SOLUTION_CYCLES = (  5  *3600)/  SOLUTION_CYCLE_TIME_IN_SECONDS ; //five hours
     public static int RAMP_UP_MULT_FACTOR = 1; 
-    public static int NUM_LEAFS_PER_WORKER = 10; //RAMP_UP_MULT_FACTOR * MAX_SOLUTION_CYCLES  ;
+    public static int NUM_LEAFS_PER_WORKER =    RAMP_UP_MULT_FACTOR * MAX_SOLUTION_CYCLES  ;
     
-    public static boolean DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES = false;
+    public static int INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_ = 10      ;
     
     public static final boolean USE_BARRIER_FOR_SOLVING_LP = false;
     public static final boolean DISABLE_CUTS = false;
+    public static final boolean DISABLE_PRESOLVE_NODE = false;
+    public static final boolean  DISABLE_PRESOLVE = false;
     
     //change this name for testing
-    private static final String _MIP_FILENAME = "neossnowy" ;
+    private static final String _MIP_FILENAME = "roi5alpha10n8" ;
     public static final String  MIP_FILENAME = _MIP_FILENAME + ".pre.sav"; 
+    //public static final double   CUTOFF_TO_USE_FOR_DISTRIBUTION = 72815.75416157287;
      
-    public static boolean   USE_VAR_PRIORITIES = true;
-    public static int   ALPHA_PERCENT = 100;
+    public static boolean   USE_VAR_PRIORITIES = true ;
     public static boolean   USE_PURE_CPLEX= false ;
     
-    
-    
-    
-    public static final int  MIP_EMPHASIS =  3  ; 
+    public static final int  MIP_EMPHASIS =  0  ; 
     
     public static   final String LOG_FOLDER="./"  + "logs/" +  _MIP_FILENAME + "/" + 
-            (USE_PURE_CPLEX? "pure" : (USE_VAR_PRIORITIES? ("repo"+ALPHA_PERCENT): "dist")) + "/"; 
+            (USE_PURE_CPLEX? ("pure"+USE_VAR_PRIORITIES) : (USE_VAR_PRIORITIES? ("repo_new_"+NUM_LEAFS_PER_WORKER): "dist")) + "/"; 
     public static   final String LOG_FILE_EXTENSION = ".log";
     public static   final Level LOGGING_LEVEL= Level.INFO ;    
     
@@ -60,7 +59,8 @@ public class Parameters {
                 "LOG_FOLDER " + LOG_FOLDER +
                 " USE_BARRIER_FOR_SOLVING_LP "+ USE_BARRIER_FOR_SOLVING_LP+
                 " DISABLE_CUTS "+ DISABLE_CUTS+
-                " DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES " + DOUBLE_THE_NUMBER_OF_SOLUTION_CYCLES;
+                " INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_ " + INCREASE_THE_NUMBER_OF_SOLUTION_CYCLES_BY_+
+                " DISABLE_PRESOLVE " + DISABLE_PRESOLVE;
     }
                
 }
