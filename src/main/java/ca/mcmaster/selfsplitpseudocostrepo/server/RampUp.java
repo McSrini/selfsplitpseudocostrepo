@@ -53,11 +53,18 @@ public class RampUp {
            assignVariablePriorities(cplex);
         }
         
+        if (Parameters.USE_IMPORTED_SOLUTION_AFTER_RAMPUP<BILLION) {
+            cplex.setParam( IloCplex.Param.MIP.Tolerances.UpperCutoff,  Parameters.USE_IMPORTED_SOLUTION_AFTER_RAMPUP);
+        }
         cplex.solve ();
         
         double rampUpSolution = BILLION;
         if (cplex.getStatus().equals(Status.Feasible)){
             rampUpSolution  = cplex.getObjValue();
+        }
+        if (Parameters.USE_IMPORTED_SOLUTION_AFTER_RAMPUP< rampUpSolution) {
+            //use solution imported from a previous 10 minute search
+            rampUpSolution = USE_IMPORTED_SOLUTION_AFTER_RAMPUP;
         }
         
         Server.dualBound= cplex.getBestObjValue();
