@@ -159,9 +159,20 @@ public class RequestHandler implements Runnable{
                         response.haltFlag= true;
                     }
                 }
+                if (isDynamicLoadBalancing && isMipGapAchieved()){
+                    logger.info ("computation is complete, the mip gap is achieved");
+                    System.out.println ("computation is complete, the mip gap is achieved");
+                    for (ServerResponseObject response: Server.responseMap.values()){
+                        response.haltFlag= true;
+                    }
+                }
                   
             }
         }
+    }
+    
+    private boolean isMipGapAchieved(){
+        return Server.relativeMipGap <= Parameters.RELATIVE_MIP_GAP;
     }
     
     private boolean isComputationComplete (){
@@ -182,6 +193,13 @@ public class RequestHandler implements Runnable{
             if (req.dualBound < lowestDualBoundOfAllClients) lowestDualBoundOfAllClients= req.dualBound;
         }
         Server.dualBound= lowestDualBoundOfAllClients;
+        
+        if (Server.bestKnownSolution < BILLION) {
+            Server.relativeMipGap =(Server.dualBound -  Server.bestKnownSolution) / (0.0000001 + Server.bestKnownSolution) ;
+            Server.relativeMipGap = Math.abs (Server.relativeMipGap ) ;
+            logger.info ("mipgap is "+  Server.relativeMipGap);
+        }
+        
     }
     
     

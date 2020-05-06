@@ -77,6 +77,8 @@ public class Utilities {
         }
         if (DISABLE_CUTS) cplex.setParam( IloCplex.Param.MIP.Limits.CutPasses , -ONE);
         
+        //cplex.setParam( IloCplex.Param.MIP.Tolerances.MIPGap , RELATIVE_MIP_GAP);
+        
     }
      
     public static Map<String, IloNumVar> getVariables (IloCplex cplex) throws IloException{

@@ -57,6 +57,8 @@ public class Server {
     //dual bound
     public static double dualBound = BILLION;
     
+    public static double relativeMipGap = BILLION; //(dualBound -  bestKnownSolution) / (0.0000001 + bestKnownSolution) ;
+    
     static {
         logger.setLevel( LOGGING_LEVEL);
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
