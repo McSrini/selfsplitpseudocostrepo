@@ -81,6 +81,7 @@ public class PureSolver {
                 double mipgap = cplex.getBestObjValue() -cplex.getObjValue();
                 mipgap = mipgap / (0.0000001 + cplex.getObjValue()) ;
                 mipgap = Math.abs (mipgap );
+                logger.info ("mipgap is "+ mipgap) ;
                 if (mipgap<= Parameters.RELATIVE_MIP_GAP){
                     logger.info ("target mip gap reached") ;
                     exit(ONE);
